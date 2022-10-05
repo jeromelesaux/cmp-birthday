@@ -6,7 +6,11 @@ BUILDSNA
 SETCPC 5
 BANKSET 0
 	ORG	#8000
-	Nolist
+
+pri equ #6800
+sscr equ pri+4
+splt equ pri+2
+
 start
 ImageCmp:
 	DB	#80,#00,#40,#9E,#C4,#B4,#6C,#F5,#08,#C0,#4C,#3C,#38,#6E,#08,#4E
@@ -691,11 +695,16 @@ ImageCmp:
 
 
 
-	RUN	$
+orig:	RUN	$
 
 
 _StartDepack:
 	DI
+
+	
+	ld hl,#C9FB
+	ld (#38),hl
+
 	LD	BC,#BC11
 	LD	HL,UnlockAsic
 Unlock:
@@ -744,10 +753,66 @@ Unlock:
 	LD	HL,ImageCmp
 	LD	DE,#0200
 	CALL	Depack
+	EI
+
 main
-	call TstSpace ; test des touches 
+//	call TstSpace ; test des touches 
+	//call xvbl
+//loop0 ld a,#ff : dec a: xor a : jr z,continue0 : ld (loop0+1),a : jr dontOndule
+//continue0 ld a,#ff : ld (loop0+1),a
+	call asicOn
+	call makeOndulation
+	call asicOff
+//dontOndule
 	jr main
 ret 
+
+;----- asic on functions ------
+asicOn
+	ld bc,#7fb8
+	out (c),c
+	ret 
+;------------------------------
+
+;----- asic off functions -----
+asicOff
+	ld bc,#7fa0
+	out (c),c
+	ret
+;-------------------------------
+
+
+;---- make ondulation ---
+makeOndulation
+
+	ld a,10
+	ld (pri),a
+
+looploopondule
+	ld a,150 ;(iterondulation)
+	ld b,a
+	ld de,sscr
+	tb ld hl,ondulationData ;ondulation
+
+
+loopondule
+
+	ld a,(hl)                   ; on recupere les valeurs des ondulations à faire
+	or #80
+	ld (de),a                   ; on poke dans le sscr
+	inc hl                      ; on incremente pour avoir la prochaine valeur
+	defs 64-6-3,0               ; on attend pour synchroniser
+	djnz loopondule
+
+	ld a,(tb+1)
+	inc a
+	and #5f
+	ld (tb+1),a
+
+	xor a ; raz sscr
+	ld (sscr),a
+
+	ret 
 
 TstSpace:
 	LD	BC,#F40E
@@ -773,11 +838,34 @@ TstSpace:
 	OUT	(C),C
 	INC	B
 	OUT	(C),A
-	EI
+
 	RET
 
 
 ;----------------------------------------------------------
+
+
+;---------------------------------------------------------------
+;
+; attente de plusieurs vbl
+;
+xvbl ld e,20
+	call waitvbl
+	dec e
+	jr nz,xvbl+2
+	ret
+;-----------------------------------
+
+;---- attente vbl ----------
+waitvbl
+	ld b,#f5 ; attente vbl
+vbl     
+	in a,(c)
+	rra
+	jp nc,vbl
+	ret
+;---------------------------
+
 
 texte
 db 'HELLO MY LITTLE CHICKEN.'
@@ -857,8 +945,28 @@ Palette:
 FontPalette
 	db #00, #00, #1D, #00, #2C, #00, #3B, #00, #4A, #00, #59, #00, #68, #00, #77, #00
 	db #86, #00, #95, #00, #A4, #00, #B3, #00, #C2, #00, #D1, #00, #F0, #00, #00, #00
+
+
+ondulationData
+db 0,0,0,0,0,0,0,0,0,0,0
+db 0,0,0,0,0,0,0,0,0,0,0
+db 0,0,0,0,0,0,0,0,0,0,0
+db 4,4,4,4,4,4,4,4,4,4,4
+db 4,4,4,4,4,4,4,4,4,4,4
+db 8,8,8,8,8,8,8,8,8,8,8
+db 8,8,8,8,8,8,8,8,8,8,8
+db 12,12,12,12,12,12,12,12,12,12
+db 12,12,12,12,12,12,12,12,12,12
+db 8,8,8,8,8,8,8,8,8,8,8
+db 8,8,8,8,8,8,8,8,8,8,8
+db 4,4,4,4,4,4,4,4,4,4,4
+db 4,4,4,4,4,4,4,4,4,4,4
+db 0,0,0,0,0,0,0,0,0,0
+db 0,0,0,0,0,0,0,0,0,0
+db 0,0,0,0,0,0,0,0,0,0
+
 buffer: 
 
 end
-;save'disc.bin',orig,end-start,DSK,'martine-animate.dsk'
+save'disc.bin',orig,end-start,DSK,'screen-4cmp.dsk'
 
