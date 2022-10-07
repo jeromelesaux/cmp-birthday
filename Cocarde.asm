@@ -769,6 +769,15 @@ dontOndule
 	jr nz, next0
 	jr main
 next0:
+
+; clean the screen
+
+ld hl,#c0001 : xor a : ld (hl),a
+ld hl,#c0000
+ld de,#c0001
+ld bc,#8000
+ldir
+
 ret 
 
 ;----- asic on functions ------
@@ -792,7 +801,7 @@ makeOndulation
 	ld a,10
 	ld (pri),a
 looploopondule
-	ld a,150 ;(iterondulation)
+	ld a,140 ;(iterondulation)
 	ld b,a
 	ld de,sscr
 	tb ld hl,ondulationData ;ondulation
@@ -956,12 +965,14 @@ db 0,0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0,0
 db 4,4,4,4,4,4,4,4,4,4,4
-
+db 4,4,4,4,4,4,4,4,4,4,4
+db 8,8,8,8,8,8,8,8,8,8,8
 db 8,8,8,8,8,8,8,8,8,8,8
 db 12,12,12,12,12,12,12,12,12,12
 db 12,12,12,12,12,12,12,12,12,12
 db 8,8,8,8,8,8,8,8,8,8,8
-
+db 8,8,8,8,8,8,8,8,8,8,8
+db 4,4,4,4,4,4,4,4,4,4,4
 db 4,4,4,4,4,4,4,4,4,4,4
 db 0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0
