@@ -758,8 +758,8 @@ Unlock:
 main
 //	call TstSpace ; test des touches 
 	//call xvbl
-loop0 ld a,#ff : dec a: xor a : jr z,continue0 : ld (loop0+1),a : jr dontOndule
-continue0 ld a,#ff : ld (loop0+1),a
+; loop0 ld a,#ff : dec a: xor a : jr z,continue0 : ld (loop0+1),a : jr dontOndule
+; continue0 ld a,#ff : ld (loop0+1),a
 	call asicOn
 	call makeOndulation
 	call asicOff
@@ -801,7 +801,7 @@ makeOndulation
 	ld a,10
 	ld (pri),a
 looploopondule
-	ld a,140 ;(iterondulation)
+	ld a,150 ;(iterondulation)
 	ld b,a
 	ld de,sscr
 	tb ld hl,ondulationData ;ondulation
