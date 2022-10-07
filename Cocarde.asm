@@ -758,13 +758,17 @@ Unlock:
 main
 //	call TstSpace ; test des touches 
 	//call xvbl
-//loop0 ld a,#ff : dec a: xor a : jr z,continue0 : ld (loop0+1),a : jr dontOndule
-//continue0 ld a,#ff : ld (loop0+1),a
+loop0 ld a,#ff : dec a: xor a : jr z,continue0 : ld (loop0+1),a : jr dontOndule
+continue0 ld a,#ff : ld (loop0+1),a
 	call asicOn
 	call makeOndulation
 	call asicOff
-//dontOndule
+dontOndule
+	call TstSpace
+	inc a 
+	jr nz, next0
 	jr main
+next0:
 ret 
 
 ;----- asic on functions ------
@@ -787,7 +791,6 @@ makeOndulation
 
 	ld a,10
 	ld (pri),a
-
 looploopondule
 	ld a,150 ;(iterondulation)
 	ld b,a
@@ -831,14 +834,15 @@ TstSpace:
 	OUT	(C),C
 	LD	BC,#F600
 	OUT	(C),C
-	INC	A
+/*	INC	A
 	JR	Z,TstSpace
+
 	LD	BC,#BC0C
 	LD	A,#30
 	OUT	(C),C
 	INC	B
 	OUT	(C),A
-
+*/
 	RET
 
 
@@ -952,14 +956,12 @@ db 0,0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0,0
 db 4,4,4,4,4,4,4,4,4,4,4
-db 4,4,4,4,4,4,4,4,4,4,4
-db 8,8,8,8,8,8,8,8,8,8,8
+
 db 8,8,8,8,8,8,8,8,8,8,8
 db 12,12,12,12,12,12,12,12,12,12
 db 12,12,12,12,12,12,12,12,12,12
 db 8,8,8,8,8,8,8,8,8,8,8
-db 8,8,8,8,8,8,8,8,8,8,8
-db 4,4,4,4,4,4,4,4,4,4,4
+
 db 4,4,4,4,4,4,4,4,4,4,4
 db 0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0
