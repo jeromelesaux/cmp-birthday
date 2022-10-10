@@ -5,11 +5,12 @@
 BUILDSNA
 SETCPC 5
 BANKSET 0
-	ORG	#8000
+	ORG	#8001
 
 pri equ #6800
 sscr equ pri+4
 splt equ pri+2
+FontMem equ #4000
 
 
 start
@@ -752,10 +753,7 @@ Unlock:
 	INC	B
 	INC	C
 	OUT	(C),C
-	; loading image 
-	LD	HL,ImageCmp
-	LD	DE,#0200
-	CALL	Depack
+
 	; loading font palette 
 	call asicOn
 	ld de,#6422 
@@ -763,11 +761,28 @@ Unlock:
 	ld bc,#0020
 	ldir 
 	call asicOff
-	; font loading 
-	LD HL,Font
-	LD DE,buffer
-	;call Depack
 
+	; font loading 
+	; change bank 
+	;brk
+	ld bc, #7fc4 ; bank 6 in #4000
+	out (c),c
+	LD HL,Font
+	LD DE,FontMem
+	LD BC,#4000
+	LDIR
+
+	;brk
+	; return to orginal bank
+	ld bc, #7fc0 
+	out (c),c
+
+	; loading image 
+	LD	HL,ImageCmp
+	LD	DE,#0200
+	CALL	Depack
+	
+	
 	EI
 
 main
@@ -996,9 +1011,9 @@ db 0,0,0,0,0,0,0,0,0,0
 
 include 'lib_text.asm'
 Font: 
-  incbin 'SPRITES.SPR.zx0' ; decompress 7680 octets
+  incbin 'SPRITES.SPR' ; decompress 7680 octets
 buffer: 
 
 end
-;save'disc.bin',orig,end-start,DSK,'screen-4cmp.dsk'
+save'disc.bin',orig,end-start,DSK,'screen-4cmp.dsk'
 
