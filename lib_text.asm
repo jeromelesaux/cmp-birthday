@@ -9,13 +9,12 @@ ld l,a
 ld h,0
 add hl,hl ;*2
 add hl,hl ;*4
-ld b,h 
-ld c,l
 add hl,hl ;*8
 add hl,hl ;*16
 add hl,hl ;*32
 add hl,hl ;*64
-add hl,bc ; 256 octets taille d'une sprite hard
+add hl,hl ;*128
+add hl,hl ;*256 octets taille d'une sprite hard
 ld de,bc        ; recuperation du pointeur de la font
 add hl,de         ; hl pointe sur la bonne lettre dans la fonte
 ret
