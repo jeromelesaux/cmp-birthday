@@ -27,3 +27,9 @@ copyFontSpriteHard
 ld bc, #00ff
 ldir
 ret
+
+copySpriteHardPalette 
+ld de, #6422
+ld bc, #0020
+ldir 
+return 

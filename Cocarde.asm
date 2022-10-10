@@ -757,13 +757,15 @@ Unlock:
 	LD	DE,#0200
 	CALL	Depack
 	; loading font palette 
+	call asicOn
 	ld de,#6422 
 	ld hl,FontPalette
 	ld bc,#0020
 	ldir 
+	call asicOff
 	; font loading 
-	;LD HL,Font
-	;LD DE,#2000
+	LD HL,Font
+	LD DE,buffer
 	;call Depack
 
 	EI
