@@ -11,7 +11,9 @@ pri equ #6800
 sscr equ pri+4
 splt equ pri+2
 
+
 start
+
 ImageCmp:
 	DB	#80,#00,#40,#9E,#C4,#B4,#6C,#F5,#08,#C0,#4C,#3C,#38,#6E,#08,#4E
 	DB	#10,#7A,#57,#D8,#20,#A3,#8C,#C0,#84,#34,#B0,#48,#A3,#4C,#78,#24
@@ -702,8 +704,8 @@ _StartDepack:
 	DI
 
 	
-	ld hl,#C9FB
-	ld (#38),hl
+	//ld hl,#C9FB
+	//ld (#38),hl
 
 	LD	BC,#BC11
 	LD	HL,UnlockAsic
@@ -750,9 +752,20 @@ Unlock:
 	INC	B
 	INC	C
 	OUT	(C),C
+	; loading image 
 	LD	HL,ImageCmp
 	LD	DE,#0200
 	CALL	Depack
+	; loading font palette 
+	ld de,#6422 
+	ld hl,FontPalette
+	ld bc,#0020
+	ldir 
+	; font loading 
+	;LD HL,Font
+	;LD DE,#2000
+	;call Depack
+
 	EI
 
 main
@@ -772,10 +785,11 @@ next0:
 
 ; clean the screen
 
-ld hl,#c0001 : xor a : ld (hl),a
-ld hl,#c0000
-ld de,#c0001
-ld bc,#8000
+  	ld   hl,#C000
+	ld   de,#C001
+	ld   bc,#4000
+	ld   (hl),l
+	ldir
 ldir
 
 ret 
@@ -954,10 +968,9 @@ UnlockAsic:
 	DB	#FF,#00,#FF,#77,#B3,#51,#A8,#D4,#62,#39,#9C,#46,#2B,#15,#8A,#CD,#EE
 Palette:
 	DB	#8C,#00,#00,#40,#00,#60,#00,#90,#00,#B0,#00,#D0,#00,#F0,#00,#22,#02,#90,#06,#B0,#09,#B2,#09,#D2,#0B,#F4,#0D,#F6,#0D,#F6,#0F,#F9,#0F,#00,#00
-
-FontPalette
-	db #00, #00, #1D, #00, #2C, #00, #3B, #00, #4A, #00, #59, #00, #68, #00, #77, #00
-	db #86, #00, #95, #00, #A4, #00, #B3, #00, #C2, #00, #D1, #00, #F0, #00, #00, #00
+FontPalette: 
+	db #00, #00, #30, #00, #30, #00, #60, #00, #90, #03, #90, #03, #C0, #03, #F0, #06
+	db #F0, #09, #F0, #09, #F3, #0C, #F9, #0F, #FF, #0F, #00, #00, #00, #00, #00, #00
 
 
 ondulationData
@@ -978,8 +991,12 @@ db 0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0
 db 0,0,0,0,0,0,0,0,0,0
 
+
+include 'lib_text.asm'
+Font: 
+  incbin 'SPRITES.SPR.zx0' ; decompress 7680 octets
 buffer: 
 
 end
-save'disc.bin',orig,end-start,DSK,'screen-4cmp.dsk'
+;save'disc.bin',orig,end-start,DSK,'screen-4cmp.dsk'
 
