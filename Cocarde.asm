@@ -758,7 +758,7 @@ Unlock:
 	call asicOn
 	ld de,#6422 
 	ld hl,FontPalette
-	ld bc,#0020
+	ld bc,#001E
 	ldir 
 	call asicOff
 
@@ -813,8 +813,10 @@ ret
 
 ;----- asic on functions ------
 asicOn
-	ld bc,#7fb8
+	ld bc,#7fc0
+	ld a,#b8
 	out (c),c
+	out (c),a
 	ret 
 ;------------------------------
 
@@ -839,7 +841,6 @@ looploopondule
 
 
 loopondule
-
 	ld a,(hl)                   ; on recupere les valeurs des ondulations à faire
 	or #80
 	ld (de),a                   ; on poke dans le sscr
