@@ -756,10 +756,7 @@ Unlock:
 
 	; loading font palette 
 	call asicOn
-	ld de,#6422 
-	ld hl,FontPalette
-	ld bc,#001E
-	ldir 
+	call copySpriteHardPalette
 	call asicOff
 
 	; font loading 
@@ -811,6 +808,19 @@ ldir
 
 ret 
 
+
+displaySH
+	ld hl,(sprOffset)
+	call nextSpriteHard
+	ld bc,(textOffset)
+	inc bc
+	ld (textOffset),bc
+	call getSpriteHardOffset
+	call copySpriteHard
+	ld (sprOffset),hl
+	
+ret
+
 ;----- asic on functions ------
 asicOn
 	ld bc,#7fc0
@@ -833,20 +843,20 @@ makeOndulation
 
 	ld a,10
 	ld (pri),a
-looploopondule
+
 	ld a,150 ;(iterondulation)
 	ld b,a
 	ld de,sscr
 	tb ld hl,ondulationData ;ondulation
 
 
-loopondule
+loopOndule
 	ld a,(hl)                   ; on recupere les valeurs des ondulations à faire
 	or #80
 	ld (de),a                   ; on poke dans le sscr
 	inc hl                      ; on incremente pour avoir la prochaine valeur
-	defs 64-6-3,0               ; on attend pour synchroniser
-	djnz loopondule
+	defs 64-6-2-2-3,0               ; on attend pour synchroniser
+	djnz loopOndule
 
 	ld a,(tb+1)
 	inc a
@@ -889,28 +899,7 @@ TstSpace:
 
 ;----------------------------------------------------------
 
-
-;---------------------------------------------------------------
-;
-; attente de plusieurs vbl
-;
-xvbl ld e,20
-	call waitvbl
-	dec e
-	jr nz,xvbl+2
-	ret
-;-----------------------------------
-
-;---- attente vbl ----------
-waitvbl
-	ld b,#f5 ; attente vbl
-vbl     
-	in a,(c)
-	rra
-	jp nc,vbl
-	ret
-;---------------------------
-
+ 
 
 texte
 db 'HELLO MY LITTLE CHICKEN.'
