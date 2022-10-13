@@ -759,20 +759,20 @@ Unlock:
 	call copySpriteHardPalette
 	call asicOff
 
-	; font loading 
-	; change bank 
-	;brk
-	ld bc, #7fc4 ; bank 6 in #4000
-	out (c),c
-	LD HL,Font
-	LD DE,FontMem
-	LD BC,#4000
-	LDIR
+	; ; font loading 
+	; ; change bank 
+	; ;brk
+	; ld bc, #7fc4 ; bank 6 in #4000
+	; out (c),c
+	; LD HL,Font
+	; LD DE,FontMem
+	; LD BC,#4000
+	; LDIR
 
-	;brk
-	; return to orginal bank
-	ld bc, #7fc0 
-	out (c),c
+	; ;brk
+	; ; return to orginal bank
+	; ld bc, #7fc0 
+	; out (c),c
 
 	; loading image 
 	LD	HL,ImageCmp
@@ -789,6 +789,8 @@ main
 ; continue0 ld a,#ff : ld (loop0+1),a
 	call asicOn
 	call makeOndulation
+	ld de,sprFont
+	call displaySH
 	call asicOff
 dontOndule
 	call TstSpace
@@ -801,10 +803,10 @@ next0:
 
   	ld   hl,#C000
 	ld   de,#C001
-	ld   bc,#4000
+	ld   bc,#8000
 	ld   (hl),l
 	ldir
-ldir
+;ldir
 
 ret 
 
@@ -815,27 +817,64 @@ ret
 ; sprite y pos offset 		: #6002 (max valeur 200)
 ; 
 
-displaySH
-	ld hl,(sprOffset)
-	call nextSpriteHard
-	ld bc,(textOffset)
-	inc bc
-	ld (textOffset),bc
-	call getSpriteHardOffset
-	push de 
-	call copySpriteHard
-	ld (sprOffset),hl
 
+sprFont 
+dw #4000, #4100, #4200, #4300, #4400, #4500
+dw #4600, #4700, #4800, #4900, #4a00, #4b00
+
+
+
+rotateSprFont
+	ld hl,sprFont
+	ld de,sprtemp ; save the current value to a temp value
+	ldi : ldi ; copie l'offset du sprite hard 
+brk
+	
+	ld de,sprFont
+	inc hl
+	inc hl
+	ld bc,#0012 ; size of the sprites offsets length -1 
+	ldir 
+brk
+	; now save the last sprite offset value
+	ld hl,sprtemp
+	ldi : ldi  ; copie l'offset du sprite hard
+
+ret
+
+textOffset dw texte
+sprtemp dw 0 
+
+displaySH
+	
+textLoad
+	ld hl,textOffset
+	push hl
+	ld bc,Font
+brk
+	call getSpriteHardOffset
+brk
+	pop hl
+	inc hl
+	ld a,(hl) ; arrive t on a la fin du texte '0' ? 
+	xor a
+	jp nz, iterTexte
+	ld hl,textOffset ; sinon on reset 
+iterTexte 
+	ld (textLoad+1),hl
+	
+	ld de,#4000
+	call copySpriteHard
+
+	
 	ld hl,#2000 ; on positionne vers la position x du sprite 
-	pop de
 	add hl,de ; offset de la pos x 
 	ld hl,300 ; affecte les valeurs des coordonnees x y
-	ld de,190
 	inc hl : inc hl
-	ld hl,(de)
+	ld hl,190
 	inc hl: inc hl ; offset de la resolution 
 	ld hl,%00001111 ; affiche le sprite en mode 0 sur les deux axes
-	
+
 ret
 
 ;----- asic on functions ------
