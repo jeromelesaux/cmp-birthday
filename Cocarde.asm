@@ -809,6 +809,12 @@ ldir
 ret 
 
 
+; sprite data offset  		: #4000 iteration by #100
+; sprite resolution offset 	: #6004 ; 0 pas afficher 01/10/11 pour mode 2/1/0
+; sprite x pos offset 		: #6000 (max valeur 640)
+; sprite y pos offset 		: #6002 (max valeur 200)
+; 
+
 displaySH
 	ld hl,(sprOffset)
 	call nextSpriteHard
@@ -816,8 +822,19 @@ displaySH
 	inc bc
 	ld (textOffset),bc
 	call getSpriteHardOffset
+	push de 
 	call copySpriteHard
 	ld (sprOffset),hl
+
+	ld hl,#2000 ; on positionne vers la position x du sprite 
+	pop de
+	add hl,de ; offset de la pos x 
+	ld hl,300 ; affecte les valeurs des coordonnees x y
+	ld de,190
+	inc hl : inc hl
+	ld hl,(de)
+	inc hl: inc hl ; offset de la resolution 
+	ld hl,%00001111 ; affiche le sprite en mode 0 sur les deux axes
 	
 ret
 
