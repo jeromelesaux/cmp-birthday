@@ -813,14 +813,61 @@ next0:
 ret 
 
 
+initSHs
+	ld hl,texte ; initialisation de l'offset du textOffset
+	ld e,(hl)
+	inc hl 
+	ld d,(hl)
+	ld hl, sprFont
+	ld a,10
+iterInitSH	ld e,(hl)
+	inc hl
+	ld d,(hl)
+	inc hl
+	call initSH
+	dec a 
+	jr nz, iterInitSH 
+ret 
+
+initSH
+	push de ; offset du sprite hard 
+	ld hl,textOffset
+	ld e,(hl)
+	inc hl 
+	ld d,(hl)
+	ld hl,de
+	ld bc,Font
+brk
+	call getSpriteHardOffset
+	
+	pop de ; recupere l'offset du sprite courant
+	call copySpriteHard
+	
+	ld hl,#2000 ; on positionne vers la position x du sprite 
+	add hl,de ; offset de la pos x  
+
+xValue0	ld a,200 ; affecte les valeurs des coordonnees x y
+	; recyclage des sprites hards
+	ld (hl),a
+	inc hl : inc hl
+	ld hl,10 
+	inc hl: inc hl ; offset de la resolution 
+	ld hl,%00001111 ; affiche le sprite en mode 0 sur les deux axes
+	ld c,10 ; on supprime 10 pixels pour le suivant
+	sub a,c
+	ld (xValue0+1),a
+ret
+
 displaySHs
 brk
 	ld hl, sprFont
-	iterDisplaySPR	ld a,10
+	ld a,10
+iterDisplaySPR	ld e,(hl)
+	inc hl
 	ld d,(hl)
+	ld (currentSpr),de
 	inc hl
-	ld e,(hl)
-	inc hl
+	call displaySH
 	dec a 
 	jr nz, iterDisplaySPR 
 ret 
@@ -836,7 +883,7 @@ sprFont
 dw #4000, #4100, #4200, #4300, #4400, #4500
 dw #4600, #4700, #4800, #4900, #4a00, #4b00
 
-currentSpr dw sprFont
+currentSpr dw #4000
 
 rotateSprFont
 	ld hl,sprFont
@@ -844,9 +891,7 @@ rotateSprFont
 	ldi : ldi ; copie l'offset du sprite hard 
 brk
 	
-	ld de,sprFont
-	inc hl
-	inc hl
+	ld de,sprFont 
 	ld bc,#0012 ; size of the sprites offsets length -1 
 	ldir 
 brk
@@ -854,49 +899,51 @@ brk
 	ld hl,sprtemp
 	ldi : ldi  ; copie l'offset du sprite hard
 
+	ld hl,sprtemp
+	ld de,currentSpr
+	ldi : ldi
+
 ret
 
 textOffset dw texte
 sprtemp dw 0 
 
 displaySH
-	push de
-textLoad
-	ld hl,textOffset
-	push hl
-	ld bc,Font
-brk
-	call getSpriteHardOffset
-brk
-	pop hl
-	inc hl
-	ld a,(hl) ; arrive t on a la fin du texte '0' ? 
-	xor a
-	jp nz, continueTexte
-	ld hl,textOffset ; sinon on reset 
-continueTexte 
-	ld (textLoad+1),hl
-	
-	pop de ; recupere l'offset du sprite courant
-	call copySpriteHard
-
+	ld de,(currentSpr) ; offset du sprite hard 
 	
 	ld hl,#2000 ; on positionne vers la position x du sprite 
 	add hl,de ; offset de la pos x  
+	push hl
+	ld a,(hl) : dec a ; arrivé en x == 0 ? 
+	ld (continueSH0+1),a
+	jr nz, continueSH0
+	; on est arrivé au bout de l'ecran 
+	; rotate sprite hard offsets
+	call setDataSH
 
-	ld a,(hl)
-	dec a ; arrivé en x == 0 ? 
-	jp nz, continueSH0
-	ld a,300 ; affecte les valeurs des coordonnees x y
-	; recyclage des sprites hards
-continueSH0
-	ld (hl),a
-
+	pop hl
 	inc hl : inc hl
 	ld hl,190 
 	inc hl: inc hl ; offset de la resolution 
 	ld hl,%00001111 ; affiche le sprite en mode 0 sur les deux axes
 
+continueSH0
+	pop hl
+	ld (hl),#00
+
+ret
+
+setDataSH
+	ld bc,Font
+	call getSpriteHardOffset
+	ld a,(hl) ; arrive t on a la fin du texte '0' ? 
+	xor a
+	jr nz, continueTexte
+	ld bc,Font
+	call getSpriteHardOffset
+continueTexte 
+	ld de,(currentSpr)
+	call copySpriteHard
 ret
 
 ;----- asic on functions ------
