@@ -868,10 +868,18 @@ iterTexte
 
 	
 	ld hl,#2000 ; on positionne vers la position x du sprite 
-	add hl,de ; offset de la pos x 
-	ld hl,300 ; affecte les valeurs des coordonnees x y
+	add hl,de ; offset de la pos x  
+
+	ld a,(hl)
+	dec a ; arrivé en x == 0 ? 
+	jp nz, continueSH0
+	ld a,300 ; affecte les valeurs des coordonnees x y
+	; recyclage des sprites hards
+continueSH0
+	ld (hl),a
+
 	inc hl : inc hl
-	ld hl,190
+	ld hl,190 
 	inc hl: inc hl ; offset de la resolution 
 	ld hl,%00001111 ; affiche le sprite en mode 0 sur les deux axes
 
