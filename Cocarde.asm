@@ -782,6 +782,9 @@ Unlock:
 	
 	EI
 
+
+; comment iterer sur tous les sprites ? 
+
 main
 //	call TstSpace ; test des touches 
 	//call xvbl
@@ -789,8 +792,7 @@ main
 ; continue0 ld a,#ff : ld (loop0+1),a
 	call asicOn
 	call makeOndulation
-	ld de,sprFont
-	call displaySH
+	call displaySHs
 	call asicOff
 dontOndule
 	call TstSpace
@@ -811,6 +813,18 @@ next0:
 ret 
 
 
+displaySHs
+brk
+	ld hl, sprFont
+	iterDisplaySPR	ld a,10
+	ld d,(hl)
+	inc hl
+	ld e,(hl)
+	inc hl
+	dec a 
+	jr nz, iterDisplaySPR 
+ret 
+
 ; sprite data offset  		: #4000 iteration by #100
 ; sprite resolution offset 	: #6004 ; 0 pas afficher 01/10/11 pour mode 2/1/0
 ; sprite x pos offset 		: #6000 (max valeur 640)
@@ -822,7 +836,7 @@ sprFont
 dw #4000, #4100, #4200, #4300, #4400, #4500
 dw #4600, #4700, #4800, #4900, #4a00, #4b00
 
-
+currentSpr dw sprFont
 
 rotateSprFont
 	ld hl,sprFont
@@ -846,7 +860,7 @@ textOffset dw texte
 sprtemp dw 0 
 
 displaySH
-	
+	push de
 textLoad
 	ld hl,textOffset
 	push hl
@@ -858,12 +872,12 @@ brk
 	inc hl
 	ld a,(hl) ; arrive t on a la fin du texte '0' ? 
 	xor a
-	jp nz, iterTexte
+	jp nz, continueTexte
 	ld hl,textOffset ; sinon on reset 
-iterTexte 
+continueTexte 
 	ld (textLoad+1),hl
 	
-	ld de,#4000
+	pop de ; recupere l'offset du sprite courant
 	call copySpriteHard
 
 	
@@ -965,7 +979,7 @@ TstSpace:
 
  
 
-texte
+texte:
 db 'HELLO MY LITTLE CHICKEN.'
 db 'ALL IMPACT WISH YOU A HAPPY BIRTHDAY.'
 db 'YOU ARE STILL THE SAME, KEEP ON.'
