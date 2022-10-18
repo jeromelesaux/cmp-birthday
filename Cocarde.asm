@@ -261,6 +261,7 @@ NumSpriteToDo:
 DisplayMessage:
 	LD	HL,texte
 	LD	A,(HL)
+brk
 	SUB	65				; Sprite 0 = 'A' (code ascii 65)
 	LD	E,#0f				; Zoom en x et y
 	JR	NC,FontOk			; Espace ? (A<65)
@@ -268,7 +269,8 @@ DisplayMessage:
 	LD	E,A				; Zoom = 0 => invisible
 FontOk
 brk
-  	ld l,a
+	LD	HL,SpriteHardPtr
+	ld l,a
     ld h,0
     add hl,hl ;*2
     add hl,hl ;*4
@@ -280,10 +282,12 @@ brk
     add hl,hl ;*256 octets taille d'une sprite hard
     ld de,bc        ; recuperation du pointeur de la font
     add hl,de         ; hl pointe sur la bonne lettre dans la fonte
-	LD	HL,SpriteHardPtr
-	LD BC,#FF
-	LDIR
-	//CALL	Depack
+	PUSH	DE
+	LD	A,I				; numero du sprite
+	ADD	A,#40				; sprites sont en #4000 dans l'asic
+	LD	D,A				; adresse du sprite
+	LD	E,B
+	CALL	Depack
 	POP	DE
 	LD	B,C				; C=0 => B=0
 	LD	A,I
