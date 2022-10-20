@@ -5,7 +5,7 @@
 BUILDSNA
 SETCPC 5
 BANKSET 0
-	ORG	#8001
+	ORG	#6850
 
 pri equ #6800
 sscr equ pri+4
@@ -135,26 +135,29 @@ ret
 ; Boucle principale de la de�mo
 ;
 LoopScroll
-	LD	A,13
-	LD	HL,PosSizeSpr			; 13 positions de sprites a initialiser
+//brk
+	LD	A,13				; copie des positions des sprites hards depuis tableau PosSizeSpr
+	LD	HL,PosSizeSpr		; 13 positions de sprites a initialiser
 	LD	DE,#6000			; Adresse dans l'asic
 SetSizePos
 	LD	BC,5				; Seulement 5 valeurs !!!
 	LDIR
+
 	INC	E
 	INC	E
 	INC	E				; Mais 8 octets entre chaque pos de sprites dans l'ASIC (Ne pas modifier ces 3 octets!)
 	DEC	A
 	JR	Nz,SetSizePos
-
+//brk
 AnimCrb:
 	LD	A,0
 
 AnimCrbFin
-	DEC	A				; A valait 0, -1 = #FF
+	DEC	A		
+//brk				; A valait 0, -1 = #FF
 	LD	(NumSpriteTodo+1),A		; #FF = pas de sprite a copier
 	LD	HL,PosSizeSpr
-	LD	B,13				; 13 sprites a deplacer
+	LD	B,13					; 13 sprites a deplacer
 	LD	IX,posSprite
 MoveSpr:
 	LD	E,(HL)
@@ -253,6 +256,7 @@ WaitVBL
 	RRA
 	JR	NC,WaitVBL			; Attendre VBL
 
+//brk
 NumSpriteToDo:
 	LD	A,#FF
 	DEC	A				; Sprite a modifier ?
@@ -261,15 +265,15 @@ NumSpriteToDo:
 DisplayMessage:
 	LD	HL,texte
 	LD	A,(HL)
-brk
+//brk
 	SUB	65				; Sprite 0 = 'A' (code ascii 65)
 	LD	E,#0f				; Zoom en x et y
 	JR	NC,FontOk			; Espace ? (A<65)
 	XOR	A				; Meme dans le cas de l'espace, on copiera un sprite (le 0 donc 'A')
 	LD	E,A				; Zoom = 0 => invisible
 FontOk
-brk
-	LD	HL,SpriteHardPtr
+;brk
+	LD	de,SpriteHardPtr
 	ld l,a
     ld h,0
     add hl,hl ;*2
@@ -280,14 +284,14 @@ brk
     add hl,hl ;*64
     add hl,hl ;*128
     add hl,hl ;*256 octets taille d'une sprite hard
-    ld de,bc        ; recuperation du pointeur de la font
     add hl,de         ; hl pointe sur la bonne lettre dans la fonte
 	PUSH	DE
 	LD	A,I				; numero du sprite
 	ADD	A,#40				; sprites sont en #4000 dans l'asic
 	LD	D,A				; adresse du sprite
-	LD	E,B
-	CALL	Depack
+	LD	E,0
+	ld bc,#00FF
+	ldir
 	POP	DE
 	LD	B,C				; C=0 => B=0
 	LD	A,I
@@ -439,7 +443,7 @@ TstSpace:
  
 
 texte:
-db 'HELLO MY LITTLE CHICKEN.'
+db 'A HELLO MY LITTLE CHICKEN.'
 db 'ALL IMPACT WISH YOU A HAPPY BIRTHDAY.'
 db 'YOU ARE STILL THE SAME, KEEP ON.'
 db 'HOPE THIS LITTLE PRESENT WILL BE APPRECIATED.'
