@@ -273,6 +273,7 @@ DisplayMessage:
 	LD	E,A				; Zoom = 0 => invisible
 FontOk
 ;brk
+	PUSH	DE
 	LD	de,SpriteHardPtr
 	ld l,a
     ld h,0
@@ -285,7 +286,7 @@ FontOk
     add hl,hl ;*128
     add hl,hl ;*256 octets taille d'une sprite hard
     add hl,de         ; hl pointe sur la bonne lettre dans la fonte
-	PUSH	DE
+
 	LD	A,I				; numero du sprite
 	ADD	A,#40				; sprites sont en #4000 dans l'asic
 	LD	D,A				; adresse du sprite
@@ -443,7 +444,7 @@ TstSpace:
  
 
 texte:
-db 'A HELLO MY LITTLE CHICKEN.'
+db 'HELLO MY LITTLE CHICKEN.'
 db 'ALL IMPACT WISH YOU A HAPPY BIRTHDAY.'
 db 'YOU ARE STILL THE SAME, KEEP ON.'
 db 'HOPE THIS LITTLE PRESENT WILL BE APPRECIATED.'
