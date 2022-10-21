@@ -112,22 +112,8 @@ main
 	call LoopScroll
 	call asicOff
 dontOndule
-	call TstSpace
-	inc a 
-	jr nz, next0
 	jr main
-next0:
 
-; clean the screen
-
-  	ld   hl,#C000
-	ld   de,#C001
-	ld   bc,#8000
-	ld   (hl),l
-	ldir
-;ldir
-
-ret 
 
 
 
@@ -312,10 +298,23 @@ FontOk
 	LD	HL,texte
 DisplayMessageOk
 	LD	(DisplayMessage+1),HL
-
+	call TstSpace
+	inc a 
+	jr nz, next0
 	JP	LoopScroll
 
 
+next0:
+; clean the screen
+	LD	BC,#7F54
+	LD	A,#11
+SetBlackScreen
+	DEC	A
+	OUT	(C),A
+	OUT	(C),C
+	JR	NZ,SetBlackScreen
+
+ret 
 
 	
 SpriteOrder:
