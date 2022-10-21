@@ -135,7 +135,6 @@ ret
 ; Boucle principale de la de�mo
 ;
 LoopScroll
-//brk
 	LD	A,13				; copie des positions des sprites hards depuis tableau PosSizeSpr
 	LD	HL,PosSizeSpr		; 13 positions de sprites a initialiser
 	LD	DE,#6000			; Adresse dans l'asic
@@ -444,14 +443,15 @@ TstSpace:
  
 
 texte:
-db 'HELLO MY LITTLE CHICKEN.'
-db 'ALL IMPACT WISH YOU A HAPPY BIRTHDAY.'
-db 'YOU ARE STILL THE SAME, KEEP ON.'
-db 'HOPE THIS LITTLE PRESENT WILL BE APPRECIATED.'
+db 'HELLO MY LITTLE CHICKEN.  '
+db 'ALL IMPACT TEAM WISH YOU A HAPPY BIRTHDAY.  '
+db 'YOU ARE STILL THE SAME, KEEP ON.  '
+db 'HOPE THIS LITTLE PRESENT WILL BE APPRECIATED.  '
 db 'YOU CAN RECOGNIZE THE KRIS S TOUCH ON GFX.'
-db '..........................................'
-db 'KISSES FROM THE HALF TEAM.........'
-db 'AST........DEMONIAK.......KRIS........SID'
+db '.......................'
+db 'KISSES FROM THE HALF TEAM...........'
+db 'AST.........DEMONIAK....DRILL.......KRIS........SID'
+db '.......................'
 db 0 
 
 
