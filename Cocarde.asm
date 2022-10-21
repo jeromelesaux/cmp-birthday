@@ -108,15 +108,6 @@ main
 ; loop0 ld a,#ff : dec a: xor a : jr z,continue0 : ld (loop0+1),a : jr dontOndule
 ; continue0 ld a,#ff : ld (loop0+1),a
 	call asicOn
-	call makeOndulation
-	call LoopScroll
-	call asicOff
-dontOndule
-	jr main
-
-
-
-
 ;
 ; Boucle principale de la de�mo
 ;
@@ -298,6 +289,8 @@ FontOk
 	LD	HL,texte
 DisplayMessageOk
 	LD	(DisplayMessage+1),HL
+
+	call makeOndulation
 	call TstSpace
 	inc a 
 	jr nz, next0
@@ -313,9 +306,20 @@ SetBlackScreen
 	OUT	(C),A
 	OUT	(C),C
 	JR	NZ,SetBlackScreen
+	call ResetSH
+	call asicoff
 
 ret 
 
+
+ResetSH
+	ld bc,#0F00
+	ld hl,#4000
+iterResetSH	
+	ld (hl),0
+	inc hl
+	djnz, iterResetSH
+ret 
 	
 SpriteOrder:
 	DB	0,1,2,3,4,5,6,7,8,9,10,11,12
@@ -381,10 +385,10 @@ asicOff
 ;---- make ondulation ---
 makeOndulation
 
-	ld a,10
+	ld a,20
 	ld (pri),a
 
-	ld a,150 ;(iterondulation)
+	ld a,110 ;(iterondulation)
 	ld b,a
 	ld de,sscr
 	tb ld hl,ondulationData ;ondulation
@@ -462,8 +466,10 @@ UnlockAsic:
 Palette:
 	DB	#8C,#00,#00,#40,#00,#60,#00,#90,#00,#B0,#00,#D0,#00,#F0,#00,#22,#02,#90,#06,#B0,#09,#B2,#09,#D2,#0B,#F4,#0D,#F6,#0D,#F6,#0F,#F9,#0F,#00,#00
 PaletteSprite: 
-	db #00, #00, #30, #00, #30, #00, #60, #00, #90, #03, #90, #03, #C0, #03, #F0, #06
-	db #F0, #09, #F0, #09, #F3, #0C, #F9, #0F, #FF, #0F, #00, #00, #00, #00, #00, #00
+	;db #00, #00, #30, #00, #30, #00, #60, #00, #90, #03, #90, #03, #C0, #03, #F0, #06
+	;db #F0, #09, #F0, #09, #F3, #0C, #F9, #0F, #FF, #0F, #00, #00, #00, #00, #00, #00
+	db #00, #00, #01, #02, #03, #05, #04, #07, #06, #0A, #07, #0C, #09, #0F, #08, #08
+	db #0A, #0A, #0B, #0B, #0C, #0C, #0D, #0D, #0F, #0F, #DD, #0D, #FF, #0F, #00, #00
 
 
 ondulationData
@@ -486,8 +492,9 @@ db 0,0,0,0,0,0,0,0,0,0
 
 
 include 'lib_text.asm'
+; reducing sprite file size cat Sid.spr |tail -c+129 |  head -c 6656 > sid_low.spr
 SpriteHardPtr: 
-  incbin 'SPRITES.SPR' ; decompress 7680 octets
+  incbin 'sid_low.spr' ; decompress 7680 octets
 buffer: 
 
 end
