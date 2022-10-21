@@ -313,8 +313,8 @@ ret
 
 
 ResetSH
-	ld bc,#0F00
-	ld hl,#4000
+	ld bc,#001E
+	ld hl,#6400
 iterResetSH	
 	ld (hl),0
 	inc hl
